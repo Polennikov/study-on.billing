@@ -20,3 +20,9 @@ migrate:
 
 fixtload:
 	@${CONSOLE} doctrine:fixtures:load
+
+phpunit:
+	@${PHP} bin/phpunit
+
+fix:
+	@${PHP} vendor/bin/php-cs-fixer fix --allow-risky=yes
