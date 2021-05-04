@@ -20,18 +20,18 @@ class UserFixtures extends Fixture
     {
         // Создание пользователя с ролью ROLE_USER
         $user = new User();
-        $user->setEmail('userEmail@mail.ru');
+        $user->setEmail('artem@mail.ru');
         $user->setPassword($this->passwordEncoder->encodePassword(
-            $user, 'user_password'));
+            $user, 'Artem48'));
         $user->setRoles(['ROLE_USER']);
         $user->setBalance(0);
         $manager->persist($user);
 
         // Создание пользователя с ролью ROLE_SUPER_ADMIN
         $user = new User();
-        $user->setEmail('adminEmail@mail.ru');
+        $user->setEmail('admin@mail.ru');
         $user->setPassword($this->passwordEncoder->encodePassword(
-            $user, 'admin_password'));
+            $user, 'Admin48'));
         $user->setRoles(['ROLE_SUPER_ADMIN']);
         $user->setBalance(0);
         $manager->persist($user);

@@ -34,8 +34,8 @@ class AuthControllerTest extends AbstractTest
     {
         // Регистрация уже существующего пользователя
         $user = [
-            'email' => 'userEmail@mail.ru',
-            'password' => 'user_password',
+            'email' => 'artem@mail.ru',
+            'password' => 'Artem48',
         ];
 
         // Создание запроса
@@ -92,8 +92,8 @@ class AuthControllerTest extends AbstractTest
 
         // Регистрация пользователя с корректными данными
         $user = [
-            'email' => 'userEmail1@mail.ru',
-            'password' => 'user_password',
+            'email' => 'artem1@mail.ru',
+            'password' => 'Artem48',
         ];
 
         // Создание запроса
@@ -125,8 +125,8 @@ class AuthControllerTest extends AbstractTest
     {
         // Вход с неверным именем пользователя
         $user = [
-            'username' => 'userEmail@mail.ruuuu',
-            'password' => 'user_password',
+            'username' => 'artem@mail.ruuuu',
+            'password' => 'Artem48',
         ];
 
         // Создание запроса
@@ -154,8 +154,8 @@ class AuthControllerTest extends AbstractTest
 
         // Вход с неверным паролем пользователя
         $user = [
-            'username' => 'userEmail@mail.ru',
-            'password' => 'user_passwordddddd',
+            'username' => 'artem@mail.ru',
+            'password' => 'Artem48ddddd',
         ];
 
         // Создание запроса
@@ -183,8 +183,8 @@ class AuthControllerTest extends AbstractTest
 
         // Вход с правильными данными пользователя
         $user = [
-            'username' => 'userEmail@mail.ru',
-            'password' => 'user_password',
+            'username' => 'artem@mail.ru',
+            'password' => 'Artem48',
         ];
 
         // Создание запроса

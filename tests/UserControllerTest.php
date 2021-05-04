@@ -34,8 +34,8 @@ class UserControllerTest extends AbstractTest
     {
         // Вход пользователя в систему для получения токена
         $user = [
-            'username' => 'userEmail@mail.ru',
-            'password' => 'user_password',
+            'username' => 'artem@mail.ru',
+            'password' => 'Artem48',
         ];
 
         // Создание запроса
