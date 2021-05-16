@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Model\UserDto;
+use App\Service\PaymentService;
+use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
+use Gesdinet\JWTRefreshTokenBundle\Service\RefreshToken;
 use JMS\Serializer\SerializerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use OpenApi\Annotations as OA;
@@ -32,12 +35,12 @@ class AuthController extends AbstractController
      *              @OA\Property(
      *                  property="username",
      *                  type="string",
-     *                  example="userEmail@mail.ru"
+     *                  example="artem@mail.ru"
      *              ),
      *              @OA\Property(
      *                  property="password",
      *                  type="string",
-     *                  example="user_password"
+     *                  example="Artem48"
      *              )
      *          )
      *     )
@@ -60,6 +63,10 @@ class AuthController extends AbstractController
      *       @OA\JsonContent(
      *              @OA\Property(
      *                  property="token",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="refresh_token",
      *                  type="string"
      *              )
      *          )
@@ -177,6 +184,10 @@ class AuthController extends AbstractController
      *              @OA\Property(
      *                  property="token",
      *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="refresh_token",
+     *                  type="string"
      *              )
      *          )
      *     ),
@@ -215,6 +226,8 @@ class AuthController extends AbstractController
      * @param   ValidatorInterface            $validator
      * @param   UserPasswordEncoderInterface  $passwordEncoder
      * @param   JWTTokenManagerInterface      $JWTManager
+     * @param   RefreshTokenManagerInterface  $refreshTokenManager
+     * @param   \App\Service\PaymentService   $paymentService
      *
      * @return Response
      */
@@ -223,7 +236,9 @@ class AuthController extends AbstractController
         SerializerInterface $serializer,
         ValidatorInterface $validator,
         UserPasswordEncoderInterface $passwordEncoder,
-        JWTTokenManagerInterface $JWTManager
+        JWTTokenManagerInterface $JWTManager,
+        RefreshTokenManagerInterface $refreshTokenManager,
+        PaymentService $paymentService
     ): Response {
         $entityManager = $this->getDoctrine()->getManager();
         $userRepository = $entityManager->getRepository(User::class);
@@ -263,11 +278,24 @@ class AuthController extends AbstractController
             // Сохраняем пользователя в базе данных
             $entityManager->persist($user);
             $entityManager->flush();
+            // Получаем сумму первоначального поплнения
+            $amount = $_ENV['DEPOSIT_AMOUNT'];
+
+            // Пополнение баланса
+            $paymentService->deposit($user, $amount);
+
+            // Устанавливаем токен обновления
+            $refreshToken = $refreshTokenManager->create();
+            $refreshToken->setUsername($user->getEmail());
+            $refreshToken->setRefreshToken();
+            $refreshToken->setValid((new \DateTime())->modify('+1 month'));
+            $refreshTokenManager->save($refreshToken);
 
             // Формируем ответ сервера
             $data = [
                 // Создаем JWT token
                 'token' => $JWTManager->create($user),
+                'refresh_token' => $refreshToken->getRefreshToken(),
             ];
             // Устанавливаем статус ответа
             $response->setStatusCode(Response::HTTP_CREATED);
@@ -277,5 +305,59 @@ class AuthController extends AbstractController
         $response->headers->add(['Content-Type' => 'application/json']);
 
         return $response;
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/token/refresh",
+     *     tags={"User"},
+     *     summary="Refresh token",
+     *     operationId="token.refresh",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="refresh_token",
+     *                  type="string"
+     *              )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *          response="200",
+     *          description="Operation successful",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="token",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="refresh_token",
+     *                  type="string"
+     *              )
+     *          )
+     *     ),
+     *     @OA\Response(
+     *          response="401",
+     *          description="Unauthorized",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="code",
+     *                  type="integer",
+     *                  example="401"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="An authentication exception occurred."
+     *              )
+     *          )
+     *     )
+     * )
+     *
+     * @Route("/token/refresh", name="refresh", methods={"POST"})
+     */
+    public function refresh(Request $request, RefreshToken $refreshService)
+    {
+        return $refreshService->refresh($request);
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Tests;
 
-use App\DataFixtures\UserFixtures;
+use App\DataFixtures\AppFixtures;
+use App\DataFixtures\CourseFixtures;
+use App\DataFixtures\TransactionFixtures;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,7 +22,10 @@ class AuthControllerTest extends AbstractTest
 
     public function getFixtures(): array
     {
-        return [new UserFixtures(self::$kernel->getContainer()->get('security.password_encoder'))];
+        return [new AppFixtures(self::$kernel->getContainer()->get('security.password_encoder')),
+        new CourseFixtures(),
+        new TransactionFixtures(),
+        ];
     }
 
     protected function setUp(): void
