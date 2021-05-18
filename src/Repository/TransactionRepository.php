@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Transaction;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -49,17 +50,44 @@ class TransactionRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
 
-        /*
-        public function findOneBySomeField($value): ?Transaction
-        {
-            return $this->createQueryBuilder('t')
-                ->andWhere('t.exampleField = :val')
-                ->setParameter('val', $value)
-                ->getQuery()
-                ->getOneOrNullResult()
-            ;
-        }
-        */
+    public function findTransactionMonth(User $user): array
+    {
+        $connect = $this->getEntityManager()->getConnection();
+
+        $sql = "
+            SELECT c.name, c.type, count(t.course_id), sum(c.cost)
+            FROM transaction t INNER JOIN course c ON c.id = t.course_id
+            WHERE t.type = 1 AND t.billing_user_id = :user_id
+            AND (t.created_at::date between (now()::date - '1 month'::interval) AND now()::date)
+            GROUP BY c.name, c.type, t.course_id
+            ";
+        $stmt = $connect->prepare($sql);
+        $stmt->execute([
+            'user_id' => $user->getId(),
+        ]);
+
+        return $stmt->fetchAll();
+    }
+
+    public function findTransactionRentEnd(User $user): array
+    {
+        $connect = $this->getEntityManager()->getConnection();
+
+        $sql = "
+            SELECT * FROM transaction t
+            INNER JOIN course c ON c.id = t.course_id
+            WHERE t.type= 1
+            AND t.billing_user_id = :user_id
+            AND t.validity_period::date = (now()::date + '1 day'::interval)
+            ORDER BY t.created_at DESC
+            ";
+        $stmt = $connect->prepare($sql);
+        $stmt->execute([
+            'user_id' => $user->getId(),
+        ]);
+
+        return $stmt->fetchAll();
     }
 }

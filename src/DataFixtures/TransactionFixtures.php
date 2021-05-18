@@ -44,7 +44,7 @@ class TransactionFixtures extends Fixture
             [
                 'type' => 1,
                 'value' => $Courses[1]->getCost(),
-                'validityPeriod' => new \DateTime('2020-05-05 00:00:00'),
+                'validityPeriod' => new \DateTime('2021-05-19 00:00:00'),
                 'course' => $Courses[1],
                 'billingUser' => $user,
                 'createdAt' => new \DateTime('2020-05-05 00:00:00'),
@@ -52,7 +52,7 @@ class TransactionFixtures extends Fixture
             [
                 'type' => 1,
                 'value' => $Courses[1]->getCost(),
-                'validityPeriod' => new \DateTime('2020-05-05 00:00:00'),
+                'validityPeriod' => new \DateTime('2021-05-19 00:00:00'),
                 'course' => $Courses[1],
                 'billingUser' => $user1,
                 'createdAt' => new \DateTime('2020-05-05 00:00:00'),
@@ -60,11 +60,11 @@ class TransactionFixtures extends Fixture
             // Арендованные курс
             [
                 'type' => 1,
-                'value' => $Courses[2]->getCost(),
-                'validityPeriod' => new \DateTime('2022-04-04 00:00:00'),
-                'course' => $Courses[2],
+                'value' => $Courses[1]->getCost(),
+                'validityPeriod' => new \DateTime('2022-11-04 00:00:00'),
+                'course' => $Courses[1],
                 'billingUser' => $user,
-                'createdAt' => new \DateTime('2020-04-04 00:00:00'),
+                'createdAt' => new \DateTime('2021-05-04 00:00:00'),
             ],
             [
                 'type' => 1,
@@ -74,31 +74,28 @@ class TransactionFixtures extends Fixture
                 'billingUser' => $user1,
                 'createdAt' => new \DateTime('2020-05-05 00:00:00'),
             ],
-
+            // Покупка
             [
                 'type' => 1,
                 'value' => $Courses[2]->getCost(),
-                //'validityPeriod' => new \DateTime('2022-04-04 00:00:00'),
                 'course' => $Courses[2],
                 'billingUser' => $user,
-                'createdAt' => new \DateTime('2020-04-04 00:00:00'),
+                'createdAt' => new \DateTime('2021-05-04 00:00:00'),
             ],
             [
                 'type' => 1,
                 'value' => $Courses[2]->getCost(),
-
                 'course' => $Courses[2],
                 'billingUser' => $user1,
                 'createdAt' => new \DateTime('2020-05-05 00:00:00'),
             ],
-
+            // Пополнение счета
             [
                 'type' => 2,
                 'value' => 500,
-                'validityPeriod' => new \DateTime('2021-06-06  00:00:00'),
                 'course' => null,
                 'billingUser' => $user,
-                'createdAt' => new \DateTime('2020-06-06 00:00:00'),
+                'createdAt' => new \DateTime('2021-05-06 00:00:00'),
             ],
             [
                 'type' => 2,

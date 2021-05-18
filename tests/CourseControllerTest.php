@@ -5,6 +5,7 @@ namespace App\Tests;
 use App\DataFixtures\AppFixtures;
 use App\DataFixtures\CourseFixtures;
 use App\DataFixtures\TransactionFixtures;
+use App\Entity\Course;
 use App\Service\PaymentService;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -201,5 +202,184 @@ class CourseControllerTest extends AbstractTest
         );
         // Проверка статуса ответа
         $this->assertResponseCode(Response::HTTP_UNAUTHORIZED, $client->getResponse());
+    }
+
+    // Тест создания нового курса
+    public function testNewCourse(): void
+    {
+        // Проверка создания курса c валидными значениями
+        // Авторизация
+        $user = [
+            'username' => 'admin@mail.ru',
+            'password' => 'Admin48',
+        ];
+        $userData = $this->auth($user);
+        // Описание нового курса
+        $course = [
+            'type' => 'rent',
+            'name' => 'высшая математика',
+            'code' => '1119',
+            'cost' => '100',
+        ];
+
+        $client = self::getClient();
+        // Создание запроса на создание курса
+        $client->request(
+            'POST',
+            $this->basePath . 'new',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $userData['token'],
+            ],
+            $this->serializer->serialize($course, 'json')
+        );
+        // Проверка статуса ответа
+        $this->assertResponseCode(Response::HTTP_CREATED, $client->getResponse());
+
+        // Проверка заголовка ответа (ответ в виде json?)
+        self::assertTrue($client->getResponse()->headers->contains(
+            'Content-Type', 'application/json'
+        ));
+
+        // Проверка содержимого ответа (успешная операция)
+        $response = json_decode($client->getResponse()->getContent(), true);
+        self::assertTrue($response['success']);
+
+        // Проверка создания курса c не валидными значениями повторяющийся код
+        // Авторизация
+        $user = [
+            'username' => 'admin@mail.ru',
+            'password' => 'Admin48',
+        ];
+        $userData = $this->auth($user);
+        // Описание нового курса
+        $course = [
+            'type' => 'rent',
+            'name' => 'высшая математика',
+            'code' => '1119',
+            'cost' => '100',
+        ];
+
+        $client = self::getClient();
+        // Создание запроса на создание курса
+        $client->request(
+            'POST',
+            $this->basePath . 'new',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $userData['token'],
+            ],
+            $this->serializer->serialize($course, 'json')
+        );
+        // Проверка статуса ответа
+        $this->assertResponseCode(Response::HTTP_CREATED, $client->getResponse());
+
+        // Проверка заголовка ответа (ответ в виде json?)
+        self::assertTrue($client->getResponse()->headers->contains(
+            'Content-Type', 'application/json'
+        ));
+
+        // Проверка содержимого ответа (успешная операция)
+        $response = json_decode($client->getResponse()->getContent(), true);
+        self::assertEquals($response['code'], 400);
+    }
+
+    // Тест изменения курса
+    public function testEditCourse(): void
+    {
+        // Проверка изменения курса c валидными значениями
+        // Авторизация
+        $user = [
+            'username' => 'admin@mail.ru',
+            'password' => 'Admin48',
+        ];
+        $userData = $this->auth($user);
+        // Описание нового курса
+        $newCourse = [
+            'type' => 'buy',
+            'name' => 'Алгебра',
+            'code' => '16776',
+            'cost' => '300',
+        ];
+
+        $client = self::getClient();
+
+        $courseRepository = self::getEntityManager()->getRepository(Course::class);
+
+        $course = $courseRepository->findOneBy(['code' => '1112']);
+
+        // Создание запроса на создание курса
+        $client->request(
+            'POST',
+            $this->basePath . $course->getCode() . '/edit',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $userData['token'],
+            ],
+            $this->serializer->serialize($newCourse, 'json')
+        );
+
+        // Проверка статуса ответа
+        $this->assertResponseCode(Response::HTTP_OK, $client->getResponse());
+
+        // Проверка заголовка ответа (ответ в виде json?)
+        self::assertTrue($client->getResponse()->headers->contains(
+            'Content-Type', 'application/json'
+        ));
+
+        // Проверка содержимого ответа (успешная операция)
+        $response = json_decode($client->getResponse()->getContent(), true);
+        self::assertTrue($response['success']);
+
+        // Проверка изменения курса c не валидными значениями
+        // Авторизация
+        $user = [
+            'username' => 'admin@mail.ru',
+            'password' => 'Admin48',
+        ];
+        $userData = $this->auth($user);
+        // Описание нового курса
+        $newCourse = [
+            'type' => 'buy',
+            'name' => 'Алгебра',
+            'code' => '1113',
+            'cost' => '300',
+        ];
+
+        $client = self::getClient();
+
+        $courseRepository = self::getEntityManager()->getRepository(Course::class);
+
+        $course = $courseRepository->findOneBy(['code' => '1113']);
+
+        // Создание запроса на создание курса
+        $client->request(
+            'POST',
+            $this->basePath . $course->getCode() . '/edit',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $userData['token'],
+            ],
+            $this->serializer->serialize($newCourse, 'json')
+        );
+        // Проверка статуса ответа
+        $this->assertResponseCode(Response::HTTP_BAD_REQUEST, $client->getResponse());
+
+        // Проверка заголовка ответа (ответ в виде json?)
+        self::assertTrue($client->getResponse()->headers->contains(
+            'Content-Type', 'application/json'
+        ));
+
+        // Проверка содержимого ответа (успешная операция)
+        $response = json_decode($client->getResponse()->getContent(), true);
+        self::assertEquals($response['code'], 400);
     }
 }

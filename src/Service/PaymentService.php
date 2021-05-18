@@ -51,6 +51,7 @@ class PaymentService
             if ($user->getBalance() < $course->getCost()) {
                 throw new \Exception('На вашем счету недостаточно средств', 406);
             }
+
             $transaction = new Transaction();
             $transaction->setType(1);
             $transaction->setBillingUser($user);
@@ -76,6 +77,5 @@ class PaymentService
         }
 
         return $transaction;
-
     }
 }
