@@ -260,7 +260,21 @@ class CourseController extends AbstractController
             // Поиск курса
             $course = $courseRepository->findOneBy(['code' => $code]);
             if (!isset($course)) {
-                throw new \Exception('Такого курса не существует', 401);
+
+                $data = [
+                    'code' => 401,
+                    'message' => 'Такого курса не существует',
+                ];
+                $response = new Response();
+                // Статус ответа
+                $response->setStatusCode($data['code']);
+                // Передаем данные
+                $response->setContent($serializer->serialize($data, 'json'));
+                // Устанавливаем заголовок
+                $response->headers->add(['Content-Type' => 'application/json']);
+
+                return $response;
+
             } else {
                 // Получаем информацию о пользователе
                 $user = $userRepository->findOneBy(['email' => $this->getUser()->getUsername()]);

@@ -186,7 +186,7 @@ class CourseControllerTest extends AbstractTest
             ]
         );
         // Проверка статуса ответа
-        $this->assertResponseCode(Response::HTTP_NOT_ACCEPTABLE, $client->getResponse());
+        $this->assertResponseCode(Response::HTTP_INTERNAL_SERVER_ERROR, $client->getResponse());
 
         // Проверка покупки курса c невалидным токеном
         $token = '123';
